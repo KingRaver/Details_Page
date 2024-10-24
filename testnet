@@ -1,0 +1,195 @@
+import React, { useState } from 'react';
+import { Calendar, Clock, MapPin, Share2, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+const EventDetailPage = () => {
+  const [selectedTickets, setSelectedTickets] = useState({});
+  const [showTickets, setShowTickets] = useState(false);
+
+  const event = {
+    title: "E-Ticket for Chiang Mai Moonlight Sky Lantern Festival",
+    date: "Nov 15, 2024",
+    time: "5:00 PM - 9:30 PM ICT",
+    location: "Mae Jo University, Chiang Mai, Thailand",
+    organizer: "Chiang Mai Events Co.",
+    description: `Experience the magic of Thailand's most enchanting festival! Watch as thousands of lanterns illuminate the night sky in perfect harmony. This spectacular event combines traditional Thai culture with a breathtaking visual display.
+
+    What's Included:
+    - 1 Sky Lantern per person
+    - Professional guidance
+    - Insurance coverage
+    - Free shuttle service
+    - Welcome drink`,
+    tickets: [
+      {
+        id: 1,
+        type: "Early Bird Ticket",
+        price: 1200,
+        description: "Limited early bird tickets at special price",
+        remaining: 50
+      },
+      {
+        id: 2,
+        type: "Regular Ticket",
+        price: 1500,
+        description: "Regular admission ticket",
+        remaining: 100
+      },
+      {
+        id: 3,
+        type: "VIP Experience",
+        price: 2500,
+        description: "Includes premium viewing area and dinner buffet",
+        remaining: 20
+      }
+    ]
+  };
+
+  const handleTicketChange = (ticketId, quantity) => {
+    setSelectedTickets(prev => ({
+      ...prev,
+      [ticketId]: Math.max(0, quantity)
+    }));
+  };
+
+  const calculateTotal = () => {
+    return event.tickets.reduce((total, ticket) => {
+      return total + (ticket.price * (selectedTickets[ticket.id] || 0));
+    }, 0);
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-4">
+      {/* Hero Section */}
+      <div className="relative">
+        <img 
+          src="/api/placeholder/1200/600" 
+          alt="Lantern Festival"
+          className="w-full h-96 object-cover rounded-lg"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg" />
+        <div className="absolute bottom-6 left-6 text-white">
+          <h1 className="text-4xl font-bold mb-2">{event.title}</h1>
+          <div className="flex items-center space-x-4">
+            <Calendar className="w-5 h-5" />
+            <span>{event.date}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+        {/* Event Details */}
+        <div className="lg:col-span-2">
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">About this event</h2>
+                  <div className="flex items-center space-x-2 text-gray-600 mb-2">
+                    <Clock className="w-5 h-5" />
+                    <span>{event.time}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <MapPin className="w-5 h-5" />
+                    <span>{event.location}</span>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <button className="p-2 hover:bg-gray-100 rounded-full">
+                    <Share2 className="w-6 h-6" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-100 rounded-full">
+                    <Heart className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+              <div className="prose max-w-none">
+                <p className="whitespace-pre-line">{event.description}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-semibold mb-4">Organizer</h2>
+              <p>{event.organizer}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Ticket Selection */}
+        <div className="lg:col-span-1">
+          <Card className="sticky top-4">
+            <CardContent className="p-6">
+              <button
+                onClick={() => setShowTickets(!showTickets)}
+                className="w-full flex justify-between items-center mb-4"
+              >
+                <span className="text-xl font-semibold">Tickets</span>
+                {showTickets ? <ChevronUp /> : <ChevronDown />}
+              </button>
+
+              {showTickets && (
+                <div className="space-y-4">
+                  {event.tickets.map(ticket => (
+                    <div key={ticket.id} className="border-b pb-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-semibold">{ticket.type}</h3>
+                          <p className="text-sm text-gray-600">{ticket.description}</p>
+                          <p className="text-sm text-gray-600">{ticket.remaining} remaining</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">฿{ticket.price.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end items-center space-x-2 mt-2">
+                        <button
+                          onClick={() => handleTicketChange(ticket.id, (selectedTickets[ticket.id] || 0) - 1)}
+                          className="px-3 py-1 border rounded hover:bg-gray-100"
+                          disabled={!selectedTickets[ticket.id]}
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center">{selectedTickets[ticket.id] || 0}</span>
+                        <button
+                          onClick={() => handleTicketChange(ticket.id, (selectedTickets[ticket.id] || 0) + 1)}
+                          className="px-3 py-1 border rounded hover:bg-gray-100"
+                          disabled={ticket.remaining === (selectedTickets[ticket.id] || 0)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {calculateTotal() > 0 && (
+                    <div className="mt-6">
+                      <div className="flex justify-between mb-4">
+                        <span className="font-semibold">Total</span>
+                        <span className="font-semibold">฿{calculateTotal().toLocaleString()}</span>
+                      </div>
+                      <button className="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700">
+                        Get Tickets
+                      </button>
+                    </div>
+                  )}
+
+                  <Alert className="mt-4">
+                    <AlertDescription>
+                      Tickets are non-refundable. Please review our refund policy before purchasing.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EventDetailPage;
